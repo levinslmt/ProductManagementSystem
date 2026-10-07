@@ -1,0 +1,34 @@
+@ProductManagementSystem_HostAddress = http://localhost:5281
+
+### Get All Products
+GET {{ProductManagementSystem_HostAddress}}/api/Product
+Accept: application/json
+
+### Get Product by Id
+GET {{ProductManagementSystem_HostAddress}}/api/Product/2
+Accept: application/json
+
+### Create A Product
+POST {{ProductManagementSystem_HostAddress}}/api/Product
+Content-Type: application/json
+
+{
+  "name": "Oreo Cookie",
+  "description": "Sweet Cookie Buscuit",
+  "quantity": 300,
+  "price": 12500
+}
+
+### Update A Product
+PUT {{ProductManagementSystem_HostAddress}}/api/Product/1
+Content-Type: application/json
+
+{
+  "name": "New Era Cap",
+  "description": "Updated Snapback Cap",
+  "quantity": 20,
+  "price": 2500
+}
+
+### Delete product
+DELETE {{ProductManagementSystem_HostAddress}}/api/Product/2
