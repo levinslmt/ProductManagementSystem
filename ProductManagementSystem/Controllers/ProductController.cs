@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ProductManagementSystem.Models;
+using ProductManagementSystem.Services;
 
 namespace ProductManagementSystem.Controllers
 {
@@ -8,39 +8,27 @@ namespace ProductManagementSystem.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private static List<Product> products = new List<Product>
-        {
-            new Product
-            {
-                Id = 1,
-                Name = "New Era Cap",
-                Description = "Snapback Cap",
-                Quantity = 10,
-                Price = 2500
-            },
-            new Product
-            {
-                Id = 2,
-                Name = "Razer V3 PRO",
-                Description = "Gaming Mouse",
-                Quantity = 3,
-                Price = 4200
-            }
+        private readonly IProductService _productService;
 
-        };
+        public ProductController(IProductService productService)
+        {
+            _productService = productService;
+        }
 
         // Get All Products
         [HttpGet]
-        public ActionResult<List<Product>> GetProducts()
+        public async Task<ActionResult<List<Product>>> GetProducts()
         {
+            var products = await _productService.GetProducts();
+
             return products;
         }
 
         // Get Single Product
         [HttpGet("{id}")]
-        public ActionResult<Product> GetProductById(int id)
+        public async Task<ActionResult<Product>> GetProductById(int id)
         {
-            var product = products.FirstOrDefault(p => p.Id == id);
+            var product = await _productService.GetProductById(id);
 
             if (product == null)
             {
@@ -52,56 +40,43 @@ namespace ProductManagementSystem.Controllers
 
         // Create a Product
         [HttpPost]
-        public ActionResult<Product> CreateProduct(Product product)
+        public async Task<ActionResult<Product>> CreateProduct(Product product)
         {
-            var newId = products.Max(p => p.Id) + 1;
-
-            product.Id = newId;
-
-            products.Add(product);
+            var createdProduct = await _productService.CreateProduct(product);
 
             return CreatedAtAction(
                 nameof(GetProductById),
-                new { id = product.Id },
-                product
-                );
+                new { id = createdProduct.Id },
+                createdProduct
+            );
         }
 
         // Update a Product
         [HttpPut("{id}")]
-        public ActionResult<Product> UpdateProduct(int id, Product updatedProduct)
+        public async Task<ActionResult<Product>> UpdateProduct(int id,Product updatedProduct)
         {
-            var product = products.FirstOrDefault(p => p.Id == id);
+            var product = await _productService.UpdateProduct(id, updatedProduct);
 
             if (product == null)
             {
                 return NotFound();
             }
-
-            product.Name = updatedProduct.Name;
-            product.Description = updatedProduct.Description;
-            product.Quantity = updatedProduct.Quantity;
-            product.Price = updatedProduct.Price;
 
             return product;
         }
 
         // Delete a Product
         [HttpDelete("{id}")]
-        public ActionResult DeleteProduct(int id)
+        public async Task<ActionResult> DeleteProduct(int id)
         {
-            var product = products.FirstOrDefault(p => p.Id == id);
+            var deleted = await _productService.DeleteProduct(id);
 
-            if (product == null)
+            if (!deleted)
             {
                 return NotFound();
             }
 
-            products.Remove(product);
-
             return NoContent();
         }
-
-
     }
 }
